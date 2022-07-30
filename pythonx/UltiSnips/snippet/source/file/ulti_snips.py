@@ -28,7 +28,7 @@ def find_snippet_files(ft, directory: str) -> Set[str]:
     directory = os.path.expanduser(directory)
     for pattern in patterns:
         for fn in glob.glob(os.path.join(directory, pattern % ft)):
-            ret.add(normalize_file_path(fn))
+            ret.add(normalize_file_path(fn, resolve=True))
     return ret
 
 
@@ -48,7 +48,7 @@ def find_all_snippet_directories() -> List[str]:
         if os.path.isabs(full_path):
             return [full_path]
 
-    all_dirs = []
+    all_dirs = {}
     check_dirs = vim_helper.eval("&runtimepath").split(",")
     for rtp in check_dirs:
         for snippet_dir in snippet_dirs:
@@ -62,8 +62,9 @@ def find_all_snippet_directories() -> List[str]:
                 os.path.expanduser(os.path.join(rtp, snippet_dir))
             )
             # Runtimepath entries may contain wildcards.
-            all_dirs.extend(glob.glob(pth))
-    return all_dirs
+            for pth in glob.glob(pth):
+                all_dirs[os.path.realpath(pth)] = pth
+    return list(all_dirs.values())
 
 
 def find_all_snippet_files(ft) -> Set[str]:

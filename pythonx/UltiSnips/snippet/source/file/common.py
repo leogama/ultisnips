@@ -6,9 +6,10 @@
 import os.path
 
 
-def normalize_file_path(path: str) -> str:
+def normalize_file_path(path: str, *, resolve: bool = False) -> str:
     """Calls normpath and normcase on path"""
-    path = os.path.realpath(path)
+    if resolve:
+        path = os.path.realpath(path)
     return os.path.normcase(os.path.normpath(path))
 
 
